@@ -1,0 +1,95 @@
+services:
+  #PostgreSQL
+  postgres:
+    image: 'postgres:latest'
+    restart: always
+    environment:
+      - 'POSTGRES_DB=asd'
+      - 'POSTGRES_PASSWORD=asd'
+      - 'POSTGRES_USER=asd'
+    ports:
+      - '5432:5432'
+
+  #PgAdmin
+  pgadmin4:
+    image: elestio/pgadmin:latest
+    restart: always
+    ports:
+      - "8091:8080"
+    volumes:
+      - ./data/postgres/pgadmin:/pgadmin4/servers.json
+    environment:
+      - PGADMIN_LISTEN_PORT=8080
+      - PGADMIN_DEFAULT_EMAIL=asd@inetumsoftware.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+
+  #RabbitMQ
+  rabbitmq:
+    image: 'rabbitmq:management'
+    restart: always
+    environment:
+      - 'RABBITMQ_DEFAULT_PASS=asd'
+      - 'RABBITMQ_DEFAULT_USER=asd'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  #Redis
+  redis:
+    image: 'redis:latest'
+    restart: always
+    ports:
+      - '6379:6379'
+
+  #Jaeger
+  jaeger:
+    image: 'jaegertracing/all-in-one:latest'
+    restart: always
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=9411
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
+      - ES_NUM_SHARDS=1
+      - ES_NUM_REPLICAS=0
+    ports:
+      - '16686:16686'
+      - '4317:4317'
+      - '4318:4318'
+      - '9411:9411'
+    depends_on:
+      - elasticsearch
+
+  #ElasticSearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+
+  #Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    container_name: prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  #Grafana
+  grafana:
+    image: 'grafana/grafana-enterprise'
+    restart: always
+    container_name: 'grafana'
+    user: '0'
+    ports:
+      - '3000:3000'
+    volumes:
+      - './data/grafana:/var/lib/grafana'

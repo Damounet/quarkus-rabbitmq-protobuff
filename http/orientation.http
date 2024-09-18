@@ -1,0 +1,25 @@
+@host = localhost:8080
+
+###
+# Create Orientation
+POST {{host}}/orientation
+Content-Type: application/json
+
+{
+  "idIdentity": "123",
+  "name": "Jérôme Palon",
+  "type": "RSA"
+}
+> {%
+  client.test("Request executed successfully", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+  });
+
+  client.global.set("uuid", response.body);
+ %}
+
+
+###
+# Get Orientations
+GET {{host}}/orientation/{{uuid}}
+Content-Type: application/json
