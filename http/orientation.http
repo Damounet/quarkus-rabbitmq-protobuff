@@ -7,9 +7,10 @@ Content-Type: application/json
 
 {
   "idIdentity": "123",
-  "name": "Jérôme Palon",
+  "name": "Bob Dylan",
   "type": "RSA"
 }
+
 > {%
   client.test("Request executed successfully", function() {
     client.assert(response.status === 200, "Response status is not 200");
@@ -23,3 +24,10 @@ Content-Type: application/json
 # Get Orientations
 GET {{host}}/orientation/{{uuid}}
 Content-Type: application/json
+
+
+> {%
+  client.test("Request executed successfully", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+  });
+%}

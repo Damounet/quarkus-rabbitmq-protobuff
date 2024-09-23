@@ -1,6 +1,7 @@
 package inetum.software.asd;
 
-import inetum.software.asd.bean.Orientation;
+import inetum.software.asd.bean.OrientationDto;
+import inetum.software.asd.proto.OrientationMessage;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.reactive.messaging.Channel;
@@ -11,18 +12,23 @@ import java.util.*;
 @Path("/orientation")
 public class OrientationEndpoint {
 
-    public static final Map<UUID, Orientation> listOrientation = new HashMap<>();
+    protected static final Map<String, OrientationMessage> listOrientation = new HashMap<>();
 
     @Channel("orientation-requests")
-    Emitter<Orientation> orientationRequestEmitter;
+    Emitter<OrientationMessage> orientationRequestEmitter;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String createOrientation(Orientation orientation) {
+    public String createOrientation(OrientationDto orientationDto) {
         UUID uuid = UUID.randomUUID();
-        orientation.setUuid(uuid);
-        listOrientation.put(uuid, orientation);
+        OrientationMessage orientation = OrientationMessage.newBuilder()
+                .setUuid(uuid.toString())
+                .setName(orientationDto.getName())
+                .setIdIdentity(orientationDto.getIdIdentity())
+                .setType(orientationDto.getType())
+                .build();
+        listOrientation.put(uuid.toString(), orientation);
         orientationRequestEmitter.send(orientation);
         return uuid.toString();
     }
@@ -30,7 +36,7 @@ public class OrientationEndpoint {
     @GET
     @Path("/{uuid}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Orientation hello(@PathParam("uuid") String uuid) {
-        return listOrientation.getOrDefault(UUID.fromString(uuid), null);
+    public OrientationMessage hello(@PathParam("uuid") String uuid) {
+        return listOrientation.getOrDefault(uuid, null);
     }
 }

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_package = "inetum.software.asd.proto";
+option java_multiple_files = true;
+
+option csharp_namespace = "inetum.software.asd.proto";
+
+message OrientationMessage {
+  string uuid = 1;
+  string idIdentity = 2;
+  string name = 3;
+  string type = 4;
+  cerMessage cer = 5;
+}
+
+message cerMessage {
+  string idCer = 1;
+  string referent = 2;
+  string decision = 3;
+}
